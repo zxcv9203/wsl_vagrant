@@ -1,0 +1,35 @@
+# vagrantfile 예제입니다.
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+#*********************************
+# Vagrant.configure부터 마지막 end 사이에서 가상 머신을 정의하고 있습니다.
+# 여기서 "2"는 Config 설정 형식의 버전을 의미합니다.
+#*********************************
+Vagrant.configure("2") do |config|
+	# config.vm.box는 앞으로 구축하는 가상 머신의 베이스가 되는 이미지를 선택합니다. (여기서는 하시코프의 공식 box의 이미지 사용)
+	config.vm.box = "centos/7"
+	# config.vm.hostname는 가상머신의 호스트 이름을 정의합니다.
+	config.vm.hostname = "demo"
+	# config.vm.network는 가상머신이 가지는 IP주소를 지정합니다.
+	config.vm.network :private_network, ip: "192.168.33.10"
+	#  config.vm.synced_folder 호스트 OS와 가상 머신상의 디렉터리를 동기화 하지 않습니다.
+	# macOS 환경에서는 신경쓸 필요가 없지만 Windows 환경에서는 기본적으로 동기화를 할 수 없기 때문에 의도적으로 동기화하지 않습니다.
+	config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
+	# shell script로 $script 이후를 실행합니다.
+	# provision으로 지정된 처리를 실행하고 싶은 경우
+	# vagrant provision으로 지정된 부분만 실행시키거나
+	# 가상머신을 다시 생성해야합니다.
+	config.vm.provision "shell", inline: $script
+  end
+  # nginx 설치
+$script =<<SCRIPT
+  yum -y install epel-release
+  yum -y install nginx
+  echo "hello, vagrant" > /usr/share/nginx/html/index.html
+  systemctl start nginx
+SCRIPT
